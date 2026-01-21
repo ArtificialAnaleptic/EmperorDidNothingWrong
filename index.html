@@ -16,7 +16,6 @@
             --gold-dim: #8a6e36;
             --red: #8a1c1c;
             --red-bright: #cf2f2f;
-            /* Green tactical variables for verdicts */
             --green-dim: #1b3d1b;
             --green-border: #3f7a3a;
             --green-text: #66bb6a;
@@ -35,10 +34,12 @@
             background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, transparent 70%), linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 100%);
         }
 
+        /* Scanline Overlay */
         body::after {
-            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 2; background-size: 100% 2px, 3px 100%; pointer-events: none;
+            content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            z-index: 1000; background-size: 100% 2px, 3px 100%; pointer-events: none;
         }
 
         header {
@@ -64,7 +65,8 @@
 
         .objection-card {
             background-color: var(--card-bg); border: 1px solid #333; border-left: 4px solid var(--red); padding: 1.5rem; cursor: pointer;
-            transition: all 0.3s ease; display: flex; flex-direction: column; justify-content: space-between; opacity: 0; animation: fadeIn 0.5s ease-out forwards;
+            transition: all 0.3s ease; display: flex; flex-direction: column; justify-content: space-between; 
+            opacity: 0; animation: fadeIn 0.5s ease-out forwards; text-align: left;
         }
         .objection-card:hover { transform: translateY(-5px); border-color: var(--gold); box-shadow: 0 5px 15px rgba(138, 28, 28, 0.2); }
 
@@ -76,7 +78,7 @@
 
         #detail-panel {
             position: fixed; top: 0; right: -650px; width: 600px; max-width: 100vw; height: 100vh;
-            background-color: #0f0f0f; border-left: 2px solid var(--gold); z-index: 100; padding: 2.5rem 2rem;
+            background-color: #0f0f0f; border-left: 2px solid var(--gold); z-index: 110; padding: 2.5rem 2rem;
             transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto;
         }
         #detail-panel.open { right: 0; }
@@ -89,25 +91,13 @@
         }
         .close-btn:hover { background: var(--red); color: white; border-color: var(--red-bright); }
 
-        /* Updated Verdict Box Styling */
-        .verdict-box { 
-            background-color: rgba(45, 90, 39, 0.15); 
-            border: 1px solid var(--green-border); 
-            padding: 1rem; 
-            margin-bottom: 2rem; 
-        }
-        .verdict-label { 
-            color: var(--green-text); 
-            font-size: 0.8rem; 
-            text-transform: uppercase; 
-            display: block; 
-            font-weight: bold; 
-        }
+        .verdict-box { background-color: rgba(45, 90, 39, 0.15); border: 1px solid var(--green-border); padding: 1rem; margin-bottom: 2rem; }
+        .verdict-label { color: var(--green-text); font-size: 0.8rem; text-transform: uppercase; display: block; font-weight: bold; }
         .verdict-text { color: var(--text-main); font-weight: bold; font-family: 'Cinzel', serif; font-size: 1.2rem; }
 
         .verdict-not-box { background-color: rgba(138, 28, 28, 0.1); border: 1px solid var(--red); padding: 1rem; margin-bottom: 2rem; }
+        .verdict-not-text { color: var(--text-main); font-weight: bold; font-family: 'Cinzel', serif; font-size: 1.2rem; display: block; }
         .verdict-not-label { color: var(--red-bright); font-size: 0.8rem; text-transform: uppercase; display: block; font-weight: bold; }
-        .verdict-not-text { color: var(--text-main); font-weight: bold; font-family: 'Cinzel', serif; font-size: 1.2rem; }
 
         .evidence-title { color: var(--gold-dim); font-size: 0.9rem; text-transform: uppercase; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
         .quote-block { background-color: #1a1a1a; border-left: 3px solid var(--gold-dim); padding: 1rem; margin-bottom: 1rem; font-style: italic; font-size: 0.9rem; }
@@ -116,7 +106,7 @@
 
         #overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85);
-            z-index: 90; opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(4px);
+            z-index: 105; opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(4px);
         }
         #overlay.active { opacity: 1; pointer-events: all; }
 
@@ -143,7 +133,7 @@
 
     <div id="overlay"></div>
 
-    <div id="detail-panel">
+    <aside id="detail-panel" aria-hidden="true">
         <div class="panel-header">
             <h2 class="panel-title" id="panel-title"></h2>
             <button class="close-btn" onclick="closePanel()">
@@ -166,78 +156,82 @@
             <span class="verdict-not-text">Clearance Level: insufficient</span>
             <span class="verdict-not-label">The administratum has been notified of your access to this record.</span>
         </div>
-    </div>
+    </aside>
 
     <script>
         const data = [
+            { id: "god", title: "He secretly wanted to be a God", summary: "Claims his ban on religion was a ploy to monopolize worship.", verdict: "False / Textually Refuted", analysis: "The Emperor actively fought to avoid apotheosis into the 'Dark King'. He voluntarily cast aside his compassion and hope to remain 'human' enough to die for his species. If he was seeking godhood he could have taken it then.", quotes: [{ text: "He has amputated that portion of himself that contains almost all of his hope, loyalty, and compassion.", source: "The End and the Death" }] },
+            { id: "blind", title: "He lacked genuine Foresight", summary: "Claims he was blind to the betrayal of Horus.", verdict: "Probabilistic Inaccuracy", analysis: "Foresight is not a script, but a branching tree of probabilities. He and Malcador knew civil war was inevitable; only the 'who' and 'when' were unknown.", quotes: [{ text: "To know a trillion possible futures, and to be left to guess at the infinite ways of arriving at each one.", source: "Master of Mankind" }] },
+            { id: "angron", title: "He was incompetent with Angron", summary: "Claims he should have saved the slave army or healed him.", verdict: "Ruthless Pragmatism", analysis: "Saving the slaves would have destabilized a compliant world. He did not heal Angron because the Butcher's Nails had replaced brain tissue; removal would be fatal.", quotes: [{ text: "A compromised Primarch is still a Primarch.", source: "Master of Mankind" }] },
+            { id: "tyrant", title: "He is just an arrogant tyrant", summary: "Claims he sought conquest for ego.", verdict: "Coherent Utilitarian", analysis: "The critique confuses 'Ego' with 'Burden'. The Emperor observed humanity fail for 30,000 years before intervening. His 'tyranny' is a triage protocol: absolute control was the only mechanism efficient enough to race against the species' imminent psychic awakening. He projects certainty not out of arrogance, but because doubt is a literal psychic breach that Chaos exploits. He is a tyrant by necessity, not desire.", quotes: [{ text: "The war is over, Diocletian. Win or lose, Horus has damned us all.", source: "Master of Mankind" }] },
+            { id: "dad", title: "He is the Galaxy's Worst Father", summary: "Claims the Heresy was caused by lack of empathy.", verdict: "Category Error", analysis: "He never attempted to be a father; he was a creator managing volatile biological assets. Familial terms were used as a manipulation tactic to ensure loyalty.", quotes: [{ text: "And this puppet... do you know what it called its maker? ... Father.", source: "Master of Mankind" }] },
+            { id: "atheist", title: "He is a 'Reddit Atheist'", summary: "Claims his arguments were juvenile.", verdict: "Strategic Tactical Lie", analysis: "The Imperial Truth was a metaphysical firewall designed to starve Chaos entities of emotional sustenance. His failure was not intellectual, but psychological.", quotes: [{ text: "The path is the destruction of all that feeds it.", source: "The Last Church" }] },
+            { id: "lorgar", title: "He was needlessly cruel to Lorgar", summary: "Claims Monarchia 'created' the Heresy.", verdict: "Theory of Mind Failure", analysis: "As a being of pure will, he failed to comprehend the irrational need for faith. He assumed hitting a malfunctioning 'machine' would correct it.", quotes: [{ text: "He was no god, and would suffer no such belief in His realm.", source: "The First Heretic" }] },
+            { id: "nikaea", title: "He was a hypocrite at Nikaea", summary: "Claims he banned psykers while being the strongest psyker.", verdict: "Info-Hazard Containment", analysis: "He distinguished between Psychic Power and Sorcery (ritualistic bargaining). He banned deals with daemons, not the power itself.", quotes: [{ text: "No more shall the threat of sorcery be allowed to taint the warriors.", source: "Council of Nikaea" }] },
+            { id: "neglect", title: "He neglected his sons for the Webway", summary: "Claims he abandoned the Crusade.", verdict: "Existential Race", analysis: "His 'neglect' was a race against time. He believed humanity's psychic evolution was imminent and required the Webway for survival.", quotes: [{ text: "Now we rage against the dying of the light.", source: "Master of Mankind" }] }
+        ];
 
-    { id: "god", title: "He secretly wanted to be a God", summary: "Claims his ban on religion was a ploy to monopolize worship.", verdict: "False / Textually Refuted", analysis: "The Emperor actively fought to avoid apotheosis into the 'Dark King': a fifth Chaos God born of humanity's worship. He voluntarily cast aside his compassion and hope to remain 'human' enough to die for his species. If he was seeking godhood he could have taken it then. Instead, he chose a rotting throne to prevent humanity's consumption.", quotes: [{ text: "He has amputated that portion of himself that contains almost all of his hope, loyalty, and compassion.", source: "The End and the Death" }] },
+        function init() {
+            const container = document.getElementById('cards-container');
+            if (!container) return;
 
-    { id: "blind", title: "He lacked genuine Foresight", summary: "Claims he was blind to the betrayal of Horus.", verdict: "Probabilistic Inaccuracy", analysis: "Foresight is not a script, but a branching tree of probabilities. He and Malcador wargamed the Heresy repeatedly; they knew civil war was inevitable, only the variables of 'who' and 'when' were unknown. He was steering the Heresy into a stalemate rather than a checkmate.", quotes: [{ text: "To know a trillion possible futures, and to be left to guess at the infinite ways of arriving at each one.", source: "Master of Mankind" }] },
+            data.forEach((item, index) => {
+                const card = document.createElement('button');
+                card.className = 'objection-card';
+                card.style.animationDelay = `${(index + 1) * 0.1}s`;
+                card.onclick = () => openPanel(item);
+                card.innerHTML = `
+                    <div>
+                        <div class="card-icon"><i data-lucide="alert-triangle"></i></div>
+                        <h3 class="card-title">${item.title}</h3>
+                        <p class="card-summary">${item.summary}</p>
+                    </div>
+                    <div class="status-indicator"><i data-lucide="search"></i> View Archive</div>
+                `;
+                container.appendChild(card);
+            });
 
-    { id: "angron", title: "He was incompetent with Angron", summary: "Claims he should have saved the slave army or healed him.", verdict: "Ruthless Pragmatism", analysis: "Saving the slaves would have destabilized a compliant world and delayed the Crusade. He did not heal Angron because the Butcher's Nails had replaced brain tissue; removal would be fatal. He chose the utility of a broken tool over the morality of discarding a Primarch.", quotes: [{ text: "A compromised Primarch is still a Primarch.", source: "Master of Mankind" }] },
-    
-    { id: "tyrant", title: "He is just an arrogant tyrant", summary: "Claims he sought conquest for ego, often labeled 'Hitler 40.0'.", verdict: "Coherent Utilitarian", analysis: "His tyranny is a calculated byproduct of a post-human strategy operating under existential time constraints. Tyranny was a necessary evil to force humanity's evolution before the Warp consumes it. His lack of humility is due to a lack of genuine peers, though he seeks the best advisers regardless. He projects certainty because the truth makes humanity more vulnerable to Chaos. After Horus's treachery, among confidants, he reveals that humanity's fate is now lost, and we are all merely forestalling inevitable death. This is not arrogance but cold hard assessment of the facts.", quotes: [{ text: "The war is over, Diocletian. Win or lose, Horus has damned us all. Mankind will share in his ignorance until the last man or woman draws the species’ last breath. The warp will forever be a cancer in the heart of all humans. The Imperium may last a hundred years, or a thousand, or ten thousand. But it will fall, Diocletian. It will fall. The shining path is lost to us. Now we rage against the dying of the light.", source: "Master of Mankind" }] },
-
-
-    { id: "dad", title: "He is the Galaxy's Worst Father", summary: "Claims the Heresy was caused by abysmal parenting and lack of empathy.", verdict: "Category Error", analysis: "The 'Bad Dad' critique fails because he never attempted to be a father; he was a creator managing volatile biological assets. The familial terms were both projected by the Primarchs and used by the Emperor as a manipulation tactic calculated to best ensure loyalty. He understood them as tools/weapons, not as children.", quotes: [{ text: "And this puppet... do you know what it called its maker? ... Father.", source: "Master of Mankind" }] },
-
-
-    { id: "atheist", title: "He is a 'Reddit Atheist'", summary: "Claims his arguments were juvenile and he was blind to Warp reality.", verdict: "Strategic Tactical Lie", analysis: "The Imperial Truth was not a deep philosophical stance, but a metaphysical firewall designed to starve Chaos entities of emotional sustenance. His error was not intellectual depth, but a failure of his post-human nature to model human irrationality and the psychological need for divinity.", quotes: [{ text: "The destination is a species free of the warp's touch. The path is the destruction of all that feeds it.", source: "The Last Church" }] },
-
-
-    { id: "lorgar", title: "He was needlessly cruel to Lorgar", summary: "Claims the humiliation at Monarchia 'created' the Heresy.", verdict: "Theory of Mind Failure", analysis: "He tolerated Lorgar for a century, acting only when worship threatened the tactical firewall against Chaos. As a being of pure will, he failed to comprehend the irrational need for faith. He assumed hitting a malfunctioning 'machine' would correct it, failing to predict Lorgar would simply find new gods.", quotes: [{ text: "He was no god, and would suffer no such belief in His realm.", source: "The First Heretic" }] },
-
-
-    { id: "nikaea", title: "He was a hypocrite at Nikaea", summary: "Claims he banned psykers while being the galaxy's strongest psyker.", verdict: "Info-Hazard Containment", analysis: "The Emperor distinguished between Psychic Power (mutation) and Sorcery (ritualistic bargaining with Warp entities). He banned deals with daemons, not the power itself. His failure was a silence born of fear; he refused to name Chaos to avoid empowering it through knowledge.", quotes: [{ text: "No more shall the threat of sorcery be allowed to taint the warriors of the Astartes.", source: "Council of Nikaea / A Thousand Sons" }] },
-
-
-    { id: "neglect", title: "He neglected his sons for the Webway", summary: "Claims he abandoned the Crusade and his sons' emotional needs.", verdict: "Existential Race", analysis: "His 'neglect' was a race against time. He believed humanity's psychic evolution was imminent and required the Webway for survival. Primarch trauma was a 'scraped knee' compared to the arterial bleed of psychic extinction. He assumed they could manage themselves while he fought to save humanity's soul.", quotes: [{ text: "Now we rage against the dying of the light.", source: "Master of Mankind" }] },
-
-
-    
-
-
-];
-
-        const container = document.getElementById('cards-container');
-        data.forEach((item, index) => {
-            const card = document.createElement('div');
-            card.className = 'objection-card';
-            card.style.animationDelay = `${(index + 1) * 0.1}s`;
-            card.onclick = () => openPanel(item);
-            card.innerHTML = `
-                <div>
-                    <div class="card-icon"><i data-lucide="alert-triangle"></i></div>
-                    <h3 class="card-title">${item.title}</h3>
-                    <p class="card-summary">${item.summary}</p>
-                </div>
-                <div class="status-indicator"><i data-lucide="search"></i> View Archive</div>
-            `;
-            container.appendChild(card);
-        });
-
-        lucide.createIcons();
+            // Only run Lucide after elements exist
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
 
         function openPanel(item) {
+            const panel = document.getElementById('detail-panel');
+            const overlay = document.getElementById('overlay');
+            
             document.getElementById('panel-title').textContent = item.title;
             document.getElementById('panel-verdict').textContent = item.verdict;
             document.getElementById('panel-analysis').innerHTML = item.analysis;
-            const qBox = document.getElementById('panel-quotes');
-            qBox.innerHTML = item.quotes.map(q => `<div class="quote-block">"${q.text}"<span class="quote-source">— ${q.source}</span></div>`).join('');
-            document.getElementById('detail-panel').classList.add('open');
-            document.getElementById('overlay').classList.add('active');
+            
+            document.getElementById('panel-quotes').innerHTML = item.quotes.map(q => `
+                <div class="quote-block">"${q.text}"<span class="quote-source">— ${q.source}</span></div>
+            `).join('');
+
+            panel.classList.add('open');
+            panel.setAttribute('aria-hidden', 'false');
+            overlay.classList.add('active');
             document.body.style.overflow = 'hidden';
+            
+            if (window.lucide) lucide.createIcons({ root: panel });
         }
 
         function closePanel() {
             document.getElementById('detail-panel').classList.remove('open');
+            document.getElementById('detail-panel').setAttribute('aria-hidden', 'true');
             document.getElementById('overlay').classList.remove('active');
             document.body.style.overflow = 'auto';
         }
 
-        document.getElementById('overlay').onclick = closePanel;
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePanel(); });
+        // Event listeners
+        document.getElementById('overlay').addEventListener('click', closePanel);
+        document.addEventListener('keydown', (e) => { 
+            if (e.key === 'Escape') closePanel(); 
+        });
+
+        // Run setup
+        window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
