@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Emperor's Morality: Cogitator Analysis</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --card-bg: #141414;
+            --text-main: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --gold: #c5a059;
+            --gold-dim: #8a6e36;
+            --red: #8a1c1c;
+            --red-bright: #cf2f2f;
+            /* Green tactical variables for verdicts */
+            --green-dim: #1b3d1b;
+            --green-border: #3f7a3a;
+            --green-text: #66bb6a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Lato', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, transparent 70%), linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 100%);
+        }
+
+        body::after {
+            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2; background-size: 100% 2px, 3px 100%; pointer-events: none;
+        }
+
+        header {
+            text-align: center; padding: 2rem 1rem; border-bottom: 2px solid var(--gold-dim);
+            background: linear-gradient(to bottom, #000, #111); position: relative; z-index: 3;
+        }
+
+        h1 { font-family: 'Cinzel', serif; color: var(--gold); font-size: 2.5rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.5rem; }
+        .subtitle { color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; }
+
+        main { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 2rem; position: relative; z-index: 3; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+        .central-node { display: flex; justify-content: center; margin-bottom: 3rem; }
+        .node-emperor {
+            background: var(--card-bg); border: 2px solid var(--gold); padding: 2rem 4rem; text-align: center; border-radius: 4px; position: relative; box-shadow: 0 0 20px rgba(197, 160, 89, 0.1);
+        }
+        .node-emperor::after { content: ''; position: absolute; bottom: -3.2rem; left: 50%; width: 2px; height: 3.2rem; background: var(--gold-dim); }
+
+        .node-emperor h2, .card-title { font-family: 'Cinzel', serif; color: var(--text-main); font-size: 1.1rem; margin-bottom: 0.5rem; }
+        .node-emperor p, .card-summary { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
+
+        .flowchart-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; width: 100%; margin-top: 2rem; }
+
+        .objection-card {
+            background-color: var(--card-bg); border: 1px solid #333; border-left: 4px solid var(--red); padding: 1.5rem; cursor: pointer;
+            transition: all 0.3s ease; display: flex; flex-direction: column; justify-content: space-between; opacity: 0; animation: fadeIn 0.5s ease-out forwards;
+        }
+        .objection-card:hover { transform: translateY(-5px); border-color: var(--gold); box-shadow: 0 5px 15px rgba(138, 28, 28, 0.2); }
+
+        .card-icon { color: var(--red); margin-bottom: 1rem; }
+        .status-indicator, .node-indicator {
+            margin-top: 1rem; font-size: 0.7rem; text-transform: uppercase; color: var(--gold-dim); display: flex; align-items: center; gap: 0.5rem;
+        }
+        .node-indicator { justify-content: center; }
+
+        #detail-panel {
+            position: fixed; top: 0; right: -650px; width: 600px; max-width: 100vw; height: 100vh;
+            background-color: #0f0f0f; border-left: 2px solid var(--gold); z-index: 100; padding: 2.5rem 2rem;
+            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto;
+        }
+        #detail-panel.open { right: 0; }
+
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid #333; padding-bottom: 1rem; }
+        .panel-title { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.6rem; }
+        .close-btn { 
+            background: #222; border: 1px solid var(--gold-dim); color: var(--gold); cursor: pointer; padding: 8px;
+            display: flex; align-items: center; gap: 5px; font-size: 0.8rem; text-transform: uppercase; transition: all 0.2s;
+        }
+        .close-btn:hover { background: var(--red); color: white; border-color: var(--red-bright); }
+
+        /* Updated Verdict Box Styling */
+        .verdict-box { 
+            background-color: rgba(45, 90, 39, 0.15); 
+            border: 1px solid var(--green-border); 
+            padding: 1rem; 
+            margin-bottom: 2rem; 
+        }
+        .verdict-label { 
+            color: var(--green-text); 
+            font-size: 0.8rem; 
+            text-transform: uppercase; 
+            display: block; 
+            font-weight: bold; 
+        }
+        .verdict-text { color: var(--text-main); font-weight: bold; font-family: 'Cinzel', serif; font-size: 1.2rem; }
+
+        .verdict-not-box { background-color: rgba(138, 28, 28, 0.1); border: 1px solid var(--red); padding: 1rem; margin-bottom: 2rem; }
+        .verdict-not-label { color: var(--red-bright); font-size: 0.8rem; text-transform: uppercase; display: block; font-weight: bold; }
+        .verdict-not-text { color: var(--text-main); font-weight: bold; font-family: 'Cinzel', serif; font-size: 1.2rem; }
+
+        .evidence-title { color: var(--gold-dim); font-size: 0.9rem; text-transform: uppercase; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .quote-block { background-color: #1a1a1a; border-left: 3px solid var(--gold-dim); padding: 1rem; margin-bottom: 1rem; font-style: italic; font-size: 0.9rem; }
+        .quote-source { display: block; text-align: right; font-size: 0.8rem; color: var(--gold-dim); margin-top: 0.5rem; font-style: normal; font-weight: bold; }
+        .analysis-text { line-height: 1.6; font-size: 0.95rem; margin-bottom: 2rem; color: #ccc; }
+
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85);
+            z-index: 90; opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(4px);
+        }
+        #overlay.active { opacity: 1; pointer-events: all; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Cogitator Report: Alpha-9</h1>
+        <div class="subtitle">Subject: The Emperor of Mankind // Moral Status Audit</div>
+    </header>
+
+    <main>
+        <div class="central-node">
+            <div class="node-emperor">
+                <h2>The Master of Mankind</h2>
+                <p>Status: Interred (Golden Throne)<br>Select a heresy below to access archives.</p>
+                <div class="node-indicator"><i data-lucide="shield-check" width="14" height="14"></i> Logged Status: Active</div>
+            </div>
+        </div>
+        <div class="flowchart-container" id="cards-container"></div>
+    </main>
+
+    <div id="overlay"></div>
+
+    <div id="detail-panel">
+        <div class="panel-header">
+            <h2 class="panel-title" id="panel-title"></h2>
+            <button class="close-btn" onclick="closePanel()">
+                <span>deactivate</span> <i data-lucide="x" width="18" height="18"></i>
+            </button>
+        </div>
+        <div class="verdict-box">
+            <span class="verdict-label">Verdict</span>
+            <span class="verdict-text" id="panel-verdict"></span>
+        </div>
+        <div class="evidence-section">
+            <div class="evidence-title"><i data-lucide="scroll"></i> Cogitator Analysis</div>
+            <p class="analysis-text" id="panel-analysis"></p>
+        </div>
+        <div class="evidence-section">
+            <div class="evidence-title"><i data-lucide="book-open"></i> Primary Source Evidence</div>
+            <div id="panel-quotes"></div>
+        </div>
+        <div class="verdict-not-box">
+            <span class="verdict-not-text">Clearance Level: insufficient</span>
+            <span class="verdict-not-label">The administratum has been notified of your access to this record.</span>
+        </div>
+    </div>
+
+    <script>
+        const data = [
+
+    { id: "god", title: "He secretly wanted to be a God", summary: "Claims his ban on religion was a ploy to monopolize worship.", verdict: "False / Textually Refuted", analysis: "The Emperor actively fought to avoid apotheosis into the 'Dark King': a fifth Chaos God born of humanity's worship. He voluntarily cast aside his compassion and hope to remain 'human' enough to die for his species. If he was seeking godhood he could have taken it then. Instead, he chose a rotting throne to prevent humanity's consumption.", quotes: [{ text: "He has amputated that portion of himself that contains almost all of his hope, loyalty, and compassion.", source: "The End and the Death" }] },
+
+    { id: "blind", title: "He lacked genuine Foresight", summary: "Claims he was blind to the betrayal of Horus.", verdict: "Probabilistic Inaccuracy", analysis: "Foresight is not a script, but a branching tree of probabilities. He and Malcador wargamed the Heresy repeatedly; they knew civil war was inevitable, only the variables of 'who' and 'when' were unknown. He was steering the Heresy into a stalemate rather than a checkmate.", quotes: [{ text: "To know a trillion possible futures, and to be left to guess at the infinite ways of arriving at each one.", source: "Master of Mankind" }] },
+
+    { id: "angron", title: "He was incompetent with Angron", summary: "Claims he should have saved the slave army or healed him.", verdict: "Ruthless Pragmatism", analysis: "Saving the slaves would have destabilized a compliant world and delayed the Crusade. He did not heal Angron because the Butcher's Nails had replaced brain tissue; removal would be fatal. He chose the utility of a broken tool over the morality of discarding a Primarch.", quotes: [{ text: "A compromised Primarch is still a Primarch.", source: "Master of Mankind" }] },
+    
+    { id: "tyrant", title: "He is just an arrogant tyrant", summary: "Claims he sought conquest for ego, often labeled 'Hitler 40.0'.", verdict: "Coherent Utilitarian", analysis: "His tyranny is a calculated byproduct of a post-human strategy operating under existential time constraints. Tyranny was a necessary evil to force humanity's evolution before the Warp consumes it. His lack of humility is due to a lack of genuine peers, though he seeks the best advisers regardless. He projects certainty because the truth makes humanity more vulnerable to Chaos. After Horus's treachery, among confidants, he reveals that humanity's fate is now lost, and we are all merely forestalling inevitable death. This is not arrogance but cold hard assessment of the facts.", quotes: [{ text: "The war is over, Diocletian. Win or lose, Horus has damned us all. Mankind will share in his ignorance until the last man or woman draws the species’ last breath. The warp will forever be a cancer in the heart of all humans. The Imperium may last a hundred years, or a thousand, or ten thousand. But it will fall, Diocletian. It will fall. The shining path is lost to us. Now we rage against the dying of the light.", source: "Master of Mankind" }] },
+
+
+    { id: "dad", title: "He is the Galaxy's Worst Father", summary: "Claims the Heresy was caused by abysmal parenting and lack of empathy.", verdict: "Category Error", analysis: "The 'Bad Dad' critique fails because he never attempted to be a father; he was a creator managing volatile biological assets. The familial terms were both projected by the Primarchs and used by the Emperor as a manipulation tactic calculated to best ensure loyalty. He understood them as tools/weapons, not as children.", quotes: [{ text: "And this puppet... do you know what it called its maker? ... Father.", source: "Master of Mankind" }] },
+
+
+    { id: "atheist", title: "He is a 'Reddit Atheist'", summary: "Claims his arguments were juvenile and he was blind to Warp reality.", verdict: "Strategic Tactical Lie", analysis: "The Imperial Truth was not a deep philosophical stance, but a metaphysical firewall designed to starve Chaos entities of emotional sustenance. His error was not intellectual depth, but a failure of his post-human nature to model human irrationality and the psychological need for divinity.", quotes: [{ text: "The destination is a species free of the warp's touch. The path is the destruction of all that feeds it.", source: "The Last Church" }] },
+
+
+    { id: "lorgar", title: "He was needlessly cruel to Lorgar", summary: "Claims the humiliation at Monarchia 'created' the Heresy.", verdict: "Theory of Mind Failure", analysis: "He tolerated Lorgar for a century, acting only when worship threatened the tactical firewall against Chaos. As a being of pure will, he failed to comprehend the irrational need for faith. He assumed hitting a malfunctioning 'machine' would correct it, failing to predict Lorgar would simply find new gods.", quotes: [{ text: "He was no god, and would suffer no such belief in His realm.", source: "The First Heretic" }] },
+
+
+    { id: "nikaea", title: "He was a hypocrite at Nikaea", summary: "Claims he banned psykers while being the galaxy's strongest psyker.", verdict: "Info-Hazard Containment", analysis: "The Emperor distinguished between Psychic Power (mutation) and Sorcery (ritualistic bargaining with Warp entities). He banned deals with daemons, not the power itself. His failure was a silence born of fear; he refused to name Chaos to avoid empowering it through knowledge.", quotes: [{ text: "No more shall the threat of sorcery be allowed to taint the warriors of the Astartes.", source: "Council of Nikaea / A Thousand Sons" }] },
+
+
+    { id: "neglect", title: "He neglected his sons for the Webway", summary: "Claims he abandoned the Crusade and his sons' emotional needs.", verdict: "Existential Race", analysis: "His 'neglect' was a race against time. He believed humanity's psychic evolution was imminent and required the Webway for survival. Primarch trauma was a 'scraped knee' compared to the arterial bleed of psychic extinction. He assumed they could manage themselves while he fought to save humanity's soul.", quotes: [{ text: "Now we rage against the dying of the light.", source: "Master of Mankind" }] },
+
+
+    
+
+
+];
+
+        const container = document.getElementById('cards-container');
+        data.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'objection-card';
+            card.style.animationDelay = `${(index + 1) * 0.1}s`;
+            card.onclick = () => openPanel(item);
+            card.innerHTML = `
+                <div>
+                    <div class="card-icon"><i data-lucide="alert-triangle"></i></div>
+                    <h3 class="card-title">${item.title}</h3>
+                    <p class="card-summary">${item.summary}</p>
+                </div>
+                <div class="status-indicator"><i data-lucide="search"></i> View Archive</div>
+            `;
+            container.appendChild(card);
+        });
+
+        lucide.createIcons();
+
+        function openPanel(item) {
+            document.getElementById('panel-title').textContent = item.title;
+            document.getElementById('panel-verdict').textContent = item.verdict;
+            document.getElementById('panel-analysis').innerHTML = item.analysis;
+            const qBox = document.getElementById('panel-quotes');
+            qBox.innerHTML = item.quotes.map(q => `<div class="quote-block">"${q.text}"<span class="quote-source">— ${q.source}</span></div>`).join('');
+            document.getElementById('detail-panel').classList.add('open');
+            document.getElementById('overlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePanel() {
+            document.getElementById('detail-panel').classList.remove('open');
+            document.getElementById('overlay').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        document.getElementById('overlay').onclick = closePanel;
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePanel(); });
+    </script>
+</body>
+</html>
